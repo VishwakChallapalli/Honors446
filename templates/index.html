@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyPilot - AI Academic Productivity Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">SP</div>
+                <div>
+                    <div class="brand-title">StudyPilot</div>
+                    <div class="brand-sub">CSE 446 Honors Project</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">&#9632;</span> Dashboard
+                </button>
+                <button class="nav-item" data-view="tasks">
+                    <span class="nav-icon">&#9745;</span> Tasks
+                </button>
+                <button class="nav-item" data-view="plan">
+                    <span class="nav-icon">&#9776;</span> Study Plan
+                </button>
+                <button class="nav-item" data-view="agent">
+                    <span class="nav-icon">&#9881;</span> AI Agent
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="reset-btn" class="ghost-btn">Reset demo data</button>
+                <div class="muted small">
+                    Made with Flask + an Antigravity-style AI agent.
+                </div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="topbar">
+                <div>
+                    <h1 id="view-title">Dashboard</h1>
+                    <p class="muted" id="view-sub">A live view of your academic workload.</p>
+                </div>
+                <div class="topbar-actions">
+                    <span id="agent-badge" class="badge badge-muted">Rule-based agent</span>
+                    <button id="open-task-form" class="primary-btn">+ New task</button>
+                </div>
+            </header>
+
+            <!-- Dashboard view -->
+            <section id="view-dashboard" class="view active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Pending tasks</div>
+                        <div class="kpi-value" id="kpi-pending">0</div>
+                    </div>
+                    <div class="kpi-card kpi-warn">
+                        <div class="kpi-label">Overdue</div>
+                        <div class="kpi-value" id="kpi-overdue">0</div>
+                    </div>
+                    <div class="kpi-card kpi-accent">
+                        <div class="kpi-label">Due this week</div>
+                        <div class="kpi-value" id="kpi-week">0</div>
+                    </div>
+                    <div class="kpi-card kpi-info">
+                        <div class="kpi-label">Estimated hours</div>
+                        <div class="kpi-value" id="kpi-hours">0</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Top priorities</h2>
+                            <span class="muted small">Sorted by urgency score</span>
+                        </div>
+                        <div id="top-priorities" class="list"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Today's focus</h2>
+                            <span class="muted small">From the AI study plan</span>
+                        </div>
+                        <div id="today-focus" class="list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks view -->
+            <section id="view-tasks" class="view">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>All tasks</h2>
+                        <div class="filters">
+                            <input id="task-search" type="search" placeholder="Search tasks..." />
+                            <select id="task-filter">
+                                <option value="all">All statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In progress</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="task-table" class="task-table"></div>
+                </div>
+            </section>
+
+            <!-- Study Plan view -->
+            <section id="view-plan" class="view">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>7-day study plan</h2>
+                        <span class="muted small">Generated by the planning agent</span>
+                    </div>
+                    <div id="plan-grid" class="plan-grid"></div>
+                </div>
+            </section>
+
+            <!-- AI Agent view -->
+            <section id="view-agent" class="view">
+                <div class="panel chat-panel">
+                    <div class="panel-header">
+                        <h2>Talk to StudyPilot</h2>
+                        <span class="muted small">Describe assignments in plain English</span>
+                    </div>
+                    <div id="chat-log" class="chat-log"></div>
+                    <form id="chat-form" class="chat-input">
+                        <input id="chat-message" type="text" autocomplete="off"
+                               placeholder='Try: "CSE 446 project due Friday, 6 hours, worth 20%"' />
+                        <button type="submit" class="primary-btn">Send</button>
+                    </form>
+                    <div class="quick-prompts">
+                        <button class="chip" data-prompt="What should I work on first?">What should I work on first?</button>
+                        <button class="chip" data-prompt="Build me a study plan for the next week">Plan my week</button>
+                        <button class="chip" data-prompt="MAT 343 quiz next Tuesday, 1 hour, worth 5%">Add a sample task</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Task form modal -->
+    <div id="task-modal" class="modal hidden">
+        <div class="modal-card">
+            <header class="modal-header">
+                <h2 id="modal-title">New task</h2>
+                <button id="modal-close" class="ghost-btn">&times;</button>
+            </header>
+            <form id="task-form" class="task-form">
+                <input type="hidden" name="id" />
+                <label>
+                    <span>Title</span>
+                    <input name="title" required maxlength="140" placeholder="e.g. CSE 446 honors final report" />
+                </label>
+                <div class="grid-2">
+                    <label>
+                        <span>Course</span>
+                        <input name="course" placeholder="CSE446" />
+                    </label>
+                    <label>
+                        <span>Due date</span>
+                        <input name="due_date" type="date" />
+                    </label>
+                </div>
+                <div class="grid-3">
+                    <label>
+                        <span>Estimated hours</span>
+                        <input name="estimated_hours" type="number" min="0.25" step="0.25" value="2" />
+                    </label>
+                    <label>
+                        <span>Weight (% of grade)</span>
+                        <input name="weight" type="number" min="0" max="100" step="1" value="10" />
+                    </label>
+                    <label>
+                        <span>Difficulty (1-5)</span>
+                        <input name="difficulty" type="number" min="1" max="5" step="1" value="3" />
+                    </label>
+                </div>
+                <label>
+                    <span>Notes</span>
+                    <textarea name="notes" rows="3" placeholder="Optional - what does success look like?"></textarea>
+                </label>
+                <label>
+                    <span>Status</span>
+                    <select name="status">
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </label>
+                <div class="modal-actions">
+                    <button type="button" id="modal-cancel" class="ghost-btn">Cancel</button>
+                    <button type="submit" class="primary-btn">Save task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

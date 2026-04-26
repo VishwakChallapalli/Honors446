@@ -1,0 +1,52 @@
+StudyPilot — CSE 446 Barrett Honors Project (Option 2 concept)
+Student: Vishwak Challapalli
+
+WHAT THIS IS
+------------
+A small Flask web app called "StudyPilot": an AI-style academic productivity
+agent that (1) stores assignments, (2) scores and sorts them by urgency,
+(3) builds a simple 7-day study plan, and (4) accepts natural-language input
+through a chat panel.  With OPENAI_API_KEY set, the chat uses the OpenAI API;
+otherwise a built-in rule-based parser runs so graders can try the app without
+keys.
+
+HOW TO RUN (LOCAL)
+------------------
+1. cd to this project folder.
+2. python3 -m venv .venv
+3. source .venv/bin/activate   (Windows: .venv\Scripts\activate)
+4. pip install -r requirements.txt
+5. Optional: copy .env.example to .env and add OPENAI_API_KEY for LLM mode.
+6. python app.py
+7. Open http://127.0.0.1:5000 in a browser.
+
+HOW TO TEST
+-----------
+  PYTHONPATH=. pytest tests/ -q
+
+API ENDPOINTS (for reference)
+-----------------------------
+  GET  /api/tasks       — prioritized tasks + summary KPIs
+  POST /api/tasks       — create task (JSON body)
+  PUT  /api/tasks/<id>  — update task
+  DELETE /api/tasks/<id>
+  POST /api/tasks/reset — restore demo seed data
+  GET  /api/plan        — 7-day plan
+  POST /api/agent       — { "message": "..." } chat / agent turn
+  GET  /api/health      — { "openai": true/false }
+
+FILES
+-----
+  app.py                 — Flask application
+  agent/                 — prioritizer, planner, conversation agent
+  templates/index.html   — single-page UI
+  static/css/styles.css
+  static/js/app.js
+  data/tasks.json        — created on first run (gitignored)
+
+ANTIGRAVITY NOTE
+----------------
+The honors option describes building in Google Antigravity IDE.  This repo is a
+reference implementation you can mirror in Antigravity (same features: task
+store, scoring, plan, NL agent) or cite as the engineered prototype alongside
+your low-code agent definition.
